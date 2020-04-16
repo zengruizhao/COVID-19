@@ -4,7 +4,7 @@
 @Time   : 2020/04/13
 @Author : Zengrui Zhao
 """
-from pretrainedmodels import se_resnext50_32x4d, alexnet, resnet34, vgg13_bn
+from pretrainedmodels import se_resnext50_32x4d, alexnet, resnet34, vgg13_bn, vgg11_bn
 from torch import nn
 from torchsummary import summary
 import torch
@@ -12,7 +12,7 @@ import torch
 class Vgg(nn.Module):
     def __init__(self, classes=2):
         super(Vgg, self).__init__()
-        model = vgg13_bn()
+        model = vgg11_bn()
         firstLayer = list(model.children())[1]
         firstLayer[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1)
         firstLayer[-1] = nn.AdaptiveAvgPool2d((1, 1))

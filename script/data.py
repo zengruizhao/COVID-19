@@ -33,16 +33,16 @@ class Data(Dataset):
                                     transforms.RandomApply([transforms.RandomRotation(90)], p=.5),
                                     transforms.RandomApply([transforms.ColorJitter(.1, .1, .1, .1)], p=.5),
                                     transforms.ToTensor(),
-                                    transforms.Normalize(self.mean, self.std)])
+                                    transforms.Normalize((self.mean, ), (self.std, ))])
         else:
             self.to_tensorImg = transforms.Compose([transforms.ToTensor(),
-                                                    transforms.Normalize(self.mean,self.std)])
+                                                    transforms.Normalize((self.mean, ), (self.std, ))])
 
     def __getitem__(self, item):
         label = 0 if 'Non' in str(self.list[item]) else 1
         img = Image.open(str(self.list[item])).convert('L').resize(self.size)
 
-        return transforms.ToTensor()(img), label
+        return self.to_tensorImg(img), label
 
     def __len__(self):
         return len(self.list)
@@ -102,16 +102,22 @@ class Lung(Data):
         self.mean, self.std = .5536, .2696
         if mode == 'train':
             self.to_tensorImg = \
-                transforms.Compose([transforms.RandomHorizontalFlip(),
-                                    transforms.RandomVerticalFlip(),
-                                    transforms.RandomAffine(degrees=90, resample=Image.BILINEAR),
-                                    transforms.RandomApply([transforms.RandomRotation(90)], p=.5),
-                                    transforms.RandomApply([transforms.ColorJitter(.1, .1, .1, .1)], p=.5),
-                                    transforms.ToTensor(),
-                                    transforms.Normalize(self.mean, self.std)])
+                transforms.Compose([
+                    transforms.RandomOrder([
+                        transforms.RandomHorizontalFlip(),
+                        transforms.RandomVerticalFlip(),
+                        transforms.RandomApply([
+                            transforms.RandomRotation(45,
+                                                      resample=Image.BILINEAR)], p=.5),
+                        transforms.RandomApply([
+                            transforms.ColorJitter(.1, .1, .1, .1)], p=.5)]),
+                        transforms.ToTensor(),
+                        transforms.Normalize((self.mean, ), (self.std, ))])
         else:
-            self.to_tensorImg = transforms.Compose([transforms.ToTensor(),
-                                                    transforms.Normalize(self.mean,self.std)])
+            self.to_tensorImg = \
+                transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Normalize((self.mean, ),(self.std, ))])
 
     def getList(self):
         path = os.path.join(self.rootDir, self.mode)
@@ -125,11 +131,10 @@ class Lung(Data):
         label = 0 if 'NonCOVID' in str(self.list[item]).split('/') else 1
         img = Image.open(str(self.list[item])).convert('L').resize(self.size)
 
-        return transforms.ToTensor()(img), label
-
+        return self.to_tensorImg(img), label
 
 if __name__ == '__main__':
-    datas = Lung(mode='train')
+    datas = Lung(mode='train', size=(320, 480))
     datas.get_mean_std()
     # for data in datas:
     #     print(data[1])

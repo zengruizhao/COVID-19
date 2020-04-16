@@ -6,7 +6,7 @@
 """
 import numpy as np
 import torch
-from model import Vgg
+from model import Vgg, Seresnext
 from data import Lung
 import argparse
 import time
@@ -17,24 +17,25 @@ from torch.utils.data import DataLoader
 from torch import nn
 from ranger import Ranger
 from tensorboardX import SummaryWriter
+import matplotlib.pyplot as plt
 
 device = ('cuda' if torch.cuda.is_available() else 'cpu')
 
 def parseArgs():
     parse = argparse.ArgumentParser()
-    parse.add_argument('--epoch', type=int, default=50)
+    parse.add_argument('--epoch', type=int, default=500)
     parse.add_argument('--batchSize', type=int, default=32)
-    parse.add_argument('--inputSize', default=(160, 240))
-    parse.add_argument('--valBatchSize', type=int, default=128)
+    parse.add_argument('--inputSize', default=(320, 480))
+    parse.add_argument('--valBatchSize', type=int, default=64)
     parse.add_argument('--name', type=str, default='Vgg')
-    parse.add_argument('--numWorkers', type=int, default=16)
+    parse.add_argument('--numWorkers', type=int, default=7)
     parse.add_argument('--dataDir', type=str, default='/home/zzr/Data/XinGuan/lung')
     parse.add_argument('--logDir', type=str, default='../log')
     parse.add_argument('--tensorboardDir', type=str, default='../tensorboard')
     parse.add_argument('--modelDir', type=str, default='../model')
-    parse.add_argument('--evalFrequency', type=int, default=1)
+    parse.add_argument('--evalFrequency', type=int, default=2)
     parse.add_argument('--msgFrequency', type=int, default=10)
-    parse.add_argument('--saveFrequency', type=int, default=20)
+    parse.add_argument('--saveFrequency', type=int, default=50)
     return parse.parse_args()
 
 def eval(model, dataloader, logger):
@@ -92,6 +93,10 @@ def main(args, logger):
             torch.save(stateDict, modelName)
 
         for img, lb in trainDataloader:
+            # array = np.array(img)
+            # for i in range(array.shape[0]):
+            #     plt.imshow(array[i, 0, ...], cmap='gray')
+            #     plt.show()
             iter += 1
             img, lb = img.to(device), lb.to(device)
             optimizer.zero_grad()
