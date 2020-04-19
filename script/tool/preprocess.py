@@ -123,8 +123,8 @@ def main():
             bw = binarize(data)
             try:
                 bw = extractLung(bw)
-                # boundingBox(bw, data)
-                cropImg(bw, data, path, name)
+                boundingBox(bw, data)
+               # cropImg(bw, data, path, name)
             except:
                 print(img)
 

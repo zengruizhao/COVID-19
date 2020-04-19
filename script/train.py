@@ -6,7 +6,7 @@
 """
 import numpy as np
 import torch
-from model import Vgg, Seresnext
+from model import Vgg
 from data import Lung
 import argparse
 import time
@@ -19,12 +19,17 @@ from ranger import Ranger
 from tensorboardX import SummaryWriter
 import matplotlib.pyplot as plt
 
-device = ('cuda' if torch.cuda.is_available() else 'cpu')
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+    torch.backends.cudnn.benchmark = True
+else:
+    device = torch.device('cpu')
 
 def parseArgs():
     parse = argparse.ArgumentParser()
     parse.add_argument('--epoch', type=int, default=500)
     parse.add_argument('--batchSize', type=int, default=32)
+    parse.add_argument('--lr', type=int, default=1e-4)
     parse.add_argument('--inputSize', default=(320, 480))
     parse.add_argument('--valBatchSize', type=int, default=64)
     parse.add_argument('--name', type=str, default='Vgg')
@@ -77,7 +82,7 @@ def main(args, logger):
                                pin_memory=False,
                                num_workers=args.numWorkers)
     criterion = nn.CrossEntropyLoss()
-    optimizer = Ranger(model.parameters(), lr=1e-4)
+    optimizer = Ranger(model.parameters(), lr=args.lr)
     iter = 0
     runningLoss = []
     for epoch in range(args.epoch):
