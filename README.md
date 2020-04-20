@@ -1,5 +1,7 @@
 # COVID-19
 
+## 文献
+
 1. Review
    - [Review of Artificial Intelligence Techniques in Imaging Data Acquisition, Segmentation and Diagnosis for COVID-19](https://arxiv.org/abs/2004.02731)
 2. Radiomics
@@ -14,4 +16,22 @@
    - [AI-assisted CT imaging analysis for COVID-19 screening: Building and deploying a medical AI system in four weeks](https://www.medrxiv.org/content/10.1101/2020.03.19.20039354v1.abstract)
    - [Lung Infection Quantification of COVID-19 in CT Images with Deep Learning](https://arxiv.org/abs/2003.04655)
    - [Serial Quantitative Chest CT Assessment of COVID-19: Deep-Learning Approach](https://pubs.rsna.org/doi/abs/10.1148/ryct.2020200075)
+
+## 环境配置
+
+```bash
+cd script
+pip install -r requirements.txt
+```
+
+## 训练和测试
+
+```bash
+python ./train.py
+python ./evaluate.py
+```
+
+
+
+
 
