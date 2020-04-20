@@ -6,7 +6,7 @@
    - [Machine learning-based CT radiomics model for predicting hospital stay in patients with
      pneumonia associated with SARS-CoV-2 infection: A multicenter study](https://www.medrxiv.org/content/medrxiv/early/2020/03/03/2020.02.29.20029603.full.pdf)
 
-2. Diagnoise
+3. Diagnose
    - [Deep Learning-based Detection for COVID-19 from Chest CT using Weak Label](https://www.medrxiv.org/content/medrxiv/early/2020/03/26/2020.03.12.20027185.full.pdf)
    - [Rapid ai development cycle for the coronavirus (covid-19) pandemic: Initial results for automated detection & patient monitoring using deep learning ct image analysis](https://arxiv.org/abs/2003.05037)
    - [Artificial intelligence distinguishes covid-19 from community acquired pneumonia on chest ct](https://pubs.rsna.org/doi/abs/10.1148/radiol.2020200905)
