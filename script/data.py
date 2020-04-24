@@ -125,16 +125,17 @@ class Lung(Data):
         for i in os.listdir(path):
             for j in os.listdir(Path(path) / i):
                 self.list.append(Path(path) / i / j)
-        random.shuffle(self.list)
+        # self.list.sort()
+        # random.shuffle(self.list)
 
     def __getitem__(self, item):
         label = 0 if 'NonCOVID' in str(self.list[item]).split('/') else 1
         img = Image.open(str(self.list[item])).convert('L').resize(self.size)
 
-        return self.to_tensorImg(img), label
+        return self.to_tensorImg(img), label, str(self.list[item]).split('/')[-1]
 
 if __name__ == '__main__':
-    datas = Lung(mode='train', size=(320, 480))
-    datas.get_mean_std()
-    # for data in datas:
-    #     print(data[1])
+    datas = Lung(mode='test', size=(320, 480))
+    # datas.get_mean_std()
+    for data in datas:
+        print(data[-1])

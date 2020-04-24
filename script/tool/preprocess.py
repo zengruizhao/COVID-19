@@ -111,9 +111,8 @@ def cropImg(bw, image, path, name):
         outPath = os.path.join(outputPath, f'{name}_{str(idx)}.png')
         output.save(outPath)
 
-
 def main():
-    path = '/home/zzr/Data/XinGuan/data/train/NonCOVID'
+    path = '/home/zzr/Data/XinGuan/data/test/COVID'
     imgs = list(map(lambda img: os.path.join(path, img), sorted(os.listdir(path))))
     for idx, img in enumerate(imgs):
         if idx >= 0:
@@ -124,7 +123,7 @@ def main():
             try:
                 bw = extractLung(bw)
                 boundingBox(bw, data)
-               # cropImg(bw, data, path, name)
+                # cropImg(bw, data, path, name)
             except:
                 print(img)
 

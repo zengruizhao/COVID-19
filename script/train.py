@@ -18,6 +18,7 @@ from torch import nn
 from ranger import Ranger
 from tensorboardX import SummaryWriter
 import matplotlib.pyplot as plt
+from apex import amp
 
 if torch.cuda.is_available():
     device = torch.device('cuda')
@@ -40,14 +41,14 @@ def parseArgs():
     parse.add_argument('--modelDir', type=str, default='../model')
     parse.add_argument('--evalFrequency', type=int, default=2)
     parse.add_argument('--msgFrequency', type=int, default=10)
-    parse.add_argument('--saveFrequency', type=int, default=50)
+    parse.add_argument('--saveFrequency', type=int, default=10)
     return parse.parse_args()
 
 def eval(model, dataloader, logger):
     model.eval()
     tp, tn, total = 0, 0, 0
     with torch.no_grad():
-        for img, lb in dataloader:
+        for img, lb, _ in dataloader:
             img, lb = img.to(device), lb.to(device)
             outputs = model(img).view(img.shape[0], -1)
             predicted = np.array(torch.max(outputs, dim=1)[1].cpu())
@@ -57,7 +58,7 @@ def eval(model, dataloader, logger):
             tn += (lb[predictedN] == 0).sum()
             total += lb.size()[0]
 
-    f1 = (2 * tp + .01) / (total + tp - tn + .001)
+    f1 = (2 * tp + .01) / (total + tp - tn + .01)
     acc = (tp + tn + .01) / (total + .01)
     logger.info(f'f1: {f1:.4f}, '
                 f'acc: {acc:.4f}')
@@ -83,6 +84,7 @@ def main(args, logger):
                                num_workers=args.numWorkers)
     criterion = nn.CrossEntropyLoss()
     optimizer = Ranger(model.parameters(), lr=args.lr)
+    model, optimizer = amp.initialize(model, optimizer, opt_level="O0")  # 这里是“欧一”，不是“零一”
     iter = 0
     runningLoss = []
     for epoch in range(args.epoch):
@@ -92,12 +94,18 @@ def main(args, logger):
                                           'acc': acc}, iter)
 
         if epoch != 0 and epoch % args.saveFrequency == 0:
-            modelName = osp.join(args.subModelDir, 'out_{}.pth'.format(epoch))
+            modelName = osp.join(args.subModelDir, 'out_{}.pt'.format(epoch))
             # 防止分布式训练保存失败
             stateDict = model.modules.state_dict() if hasattr(model, 'module') else model.state_dict()
             torch.save(stateDict, modelName)
+            checkpoint = {
+                'model': model.state_dict(),
+                'optimizer': optimizer.state_dict(),
+                'amp': amp.state_dict()
+            }
+            torch.save(checkpoint, modelName)
 
-        for img, lb in trainDataloader:
+        for img, lb, _ in trainDataloader:
             # array = np.array(img)
             # for i in range(array.shape[0]):
             #     plt.imshow(array[i, 0, ...], cmap='gray')
@@ -107,7 +115,9 @@ def main(args, logger):
             optimizer.zero_grad()
             outputs = model(img)
             loss = criterion(outputs.squeeze(), lb.long())
-            loss.backward()
+            with amp.scale_loss(loss, optimizer) as scaled_loss:
+                scaled_loss.backward()
+            # loss.backward()
             optimizer.step()
             runningLoss.append(loss.item())
 
