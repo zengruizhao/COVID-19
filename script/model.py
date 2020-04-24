@@ -80,7 +80,7 @@ class Alexnet(nn.Module):
         return x
 
 if __name__ == '__main__':
-    device = ('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = Vgg().to(device)
     print(model)
-    summary(model, (1, 160, 240))
+    summary(model, (1, 320, 480))

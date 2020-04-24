@@ -31,6 +31,9 @@ python ./train.py
 python ./evaluate.py
 ```
 
+## 性能
+- 测试集--整个病例　F1:0.8745, ACC:0.8632, Sen:0.9018, Spe:0.8200
+- 测试集--单肺　F1:0.8591, ACC:0.8465, Sen:0.8873, Spe:0.8011
 
 
 

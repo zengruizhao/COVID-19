@@ -20,12 +20,12 @@ def parseArgs():
     parse.add_argument('--batchSize', type=int, default=128)
     parse.add_argument('--dataDir', type=str, default='/home/zzr/Data/XinGuan/lung')
     parse.add_argument('--model', type=str,
-                       default='/home/zzr/Project/COVID-19/model/200417-083930_Vgg/out_450.pth')
+                       default='/home/zzr/Project/COVID-19/model/200424-162356_Vgg/out_100.pt')
     return parse.parse_args()
 
 def evalSingLung(model, dataloader):
     model.eval()
-    tp, tn, total = 0, 0, 0
+    tp, tn, total, p, n = 0, 0, 0, 0, 0
     with torch.no_grad():
         for img, lb, _ in dataloader:
             img, lb = img.to(device), lb.to(device)
@@ -35,14 +35,18 @@ def evalSingLung(model, dataloader):
             predictedN = np.where(predicted==0)
             tp += (lb[predictedP] == 1).sum()
             tn += (lb[predictedN] == 0).sum()
+            p += (lb == 1).sum()
+            n += (lb == 0).sum()
             total += lb.size()[0]
 
     f1 = (2 * tp + .01) / (total + tp - tn + .01)
     acc = (tp + tn + .01) / (total + .01)
+    sen = (tp + .01) / (p + .01)
+    spe = (tn + .01) / (n + .01)
     print(f'f1: {f1:.4f}, '
-          f'acc: {acc:.4f}')
-
-    return f1, acc
+          f'acc: {acc:.4f}, '
+          f'sen: {sen:.4f}, '
+          f'spe: {spe:.4f}')
 
 def evalPatient(model, dataloader):
     model.eval()
@@ -82,34 +86,43 @@ def decision(table):
 
 def metrics(result):
     total = len(result)
-    tp, tn = 0, 0
+    tp, tn, p, n = 0, 0, 0, 0
     for key, val in result.items():
         label = val[0]
+        p = p + 1 if label == 1 else p
+        n = n + 1 if label == 0 else n
+        ## expore multiple fusion decision
+        # way 1
         prob = val[1] if len(val) == 2 else (val[1] + val[2]) / 2
+        # way 2
         # prob = val[1] if len(val) == 2 else np.max(val[1:])
-        if prob > .5 and label == 1:
-            tp += 1
-        if prob < .5 and label == 0:
-            tn += 1
+        tp = tp + 1 if prob > .5 and label == 1 else tp
+        tn = tn + 1 if prob < .5 and label == 0 else tn
 
     f1 = (2 * tp + .01) / (total + tp - tn + .01)
     acc = (tp + tn + .01) / (total + .01)
+    sen = (tp + .01) / (p + .01)
+    spe = (tn + .01) / (n + .01)
     print(f'f1: {f1:.4f}, '
-          f'acc: {acc:.4f}')
+          f'acc: {acc:.4f}, '
+          f'sen: {sen:.4f}, '
+          f'spe: {spe:.4f}')
 
 def main(args):
     model = Vgg().to(device)
-    model.load_state_dict(torch.load(args.model))
+    model.load_state_dict(torch.load(args.model)['model'])
     testSet = Lung(rootDir=args.dataDir, mode='test', size=(320, 480))
     valDataloader = DataLoader(testSet,
                                batch_size=args.batchSize,
                                drop_last=False,
                                shuffle=False,
                                pin_memory=False)
-    # evalSingLung(model, valDataloader)
-    table = evalPatient(model, valDataloader)
-    result = decision(copy.deepcopy(table))
-    metrics(copy.deepcopy(result))
+    ## way1 sing lung
+    evalSingLung(model, valDataloader)
+    ## way2 whole patient
+    # table = evalPatient(model, valDataloader)
+    # result = decision(copy.deepcopy(table))
+    # metrics(copy.deepcopy(result))
 
 if __name__ == '__main__':
     args = parseArgs()

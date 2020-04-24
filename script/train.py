@@ -66,7 +66,7 @@ def eval(model, dataloader, logger):
     return f1, acc
 
 def main(args, logger):
-    writer = SummaryWriter(args.tensorboardDir)
+    writer = SummaryWriter(args.subTensorboardDir)
     model = Vgg().to(device)
     trainSet = Lung(rootDir=args.dataDir, mode='train', size=args.inputSize)
     valSet = Lung(rootDir=args.dataDir, mode='test', size=args.inputSize)
