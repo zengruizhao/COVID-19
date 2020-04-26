@@ -4,8 +4,6 @@
     <list default="true" id="ac1e36c4-e636-434f-94da-d0d5fce39d4a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/evaluate.py" beforeDir="false" afterPath="$PROJECT_DIR$/evaluate.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -185,7 +183,8 @@
       <workItem from="1587192977434" duration="16442000" />
       <workItem from="1587304108370" duration="1694000" />
       <workItem from="1587560561627" duration="1815000" />
-      <workItem from="1587607657915" duration="31150000" />
+      <workItem from="1587607657915" duration="31411000" />
+      <workItem from="1587878962835" duration="778000" />
     </task>
     <servers />
   </component>

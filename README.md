@@ -23,6 +23,8 @@
 cd script
 pip install -r requirements.txt
 ```
+对于显卡有tensor core(图灵架构2080ti)的用户建议安装[apex](https://github.com/apex/apex)进行加速.
+只要在train.py中设置‘apexType’参数为‘O1’,默认为‘O0’. 
 
 ## 训练和测试
 
@@ -34,7 +36,3 @@ python ./evaluate.py
 ## 性能
 - 测试集--整个病例　F1:0.8745, ACC:0.8632, Sen:0.9018, Spe:0.8200
 - 测试集--单肺　F1:0.8591, ACC:0.8465, Sen:0.8873, Spe:0.8011
-
-
-
-

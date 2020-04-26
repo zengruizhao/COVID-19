@@ -33,6 +33,8 @@ def parseArgs():
     parse.add_argument('--lr', type=int, default=1e-4)
     parse.add_argument('--inputSize', default=(320, 480))
     parse.add_argument('--valBatchSize', type=int, default=64)
+    parse.add_argument('--apexType', type=str, default='O0', # 这里是“欧零”，不是“零零”
+                       choices=['O0', 'O1', 'O2', 'O3'])
     parse.add_argument('--name', type=str, default='Vgg')
     parse.add_argument('--numWorkers', type=int, default=7)
     parse.add_argument('--dataDir', type=str, default='/home/zzr/Data/XinGuan/lung')
@@ -84,7 +86,7 @@ def main(args, logger):
                                num_workers=args.numWorkers)
     criterion = nn.CrossEntropyLoss()
     optimizer = Ranger(model.parameters(), lr=args.lr)
-    model, optimizer = amp.initialize(model, optimizer, opt_level="O0")  # 这里是“欧一”，不是“零一”
+    model, optimizer = amp.initialize(model, optimizer, opt_level=args.apexType)
     iter = 0
     runningLoss = []
     for epoch in range(args.epoch):
